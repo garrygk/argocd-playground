@@ -97,6 +97,13 @@ datadog:
   dogStatsDSocketPath: /var/run/datadog/dsd.socket
   dockerSocketPath:  /var/run/docker.sock
 
+agents:
+  useConfigMap: true
+  customAgentConfig:
+    additional_endpoints:
+      'https://app.datadoghq.eu':
+        - ${data.vault_generic_secret.shared_secrets.data["datadog_api_key"]}
+
 clusterAgent:
   enabled: true
   rbac:
