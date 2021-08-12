@@ -30,8 +30,6 @@ datadog:
     tlsVerify:  false
   collectEvents: true
   env:
-    - name: DD_SITE
-      value: datadoghq.eu
     - name: DD_HEALTH_PORT
       value: "5556"
     - name: DD_COLLECT_KUBERNETES_EVENTS
