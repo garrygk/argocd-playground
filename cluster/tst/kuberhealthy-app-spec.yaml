@@ -19,7 +19,7 @@ spec:
       value: "09999"
   source:
     repoURL: 'https://kuberhealthy.github.io/kuberhealthy/helm-repos'
-    targetRevision: 77
+    targetRevision: "77"
     chart: kuberhealthy
     helm:
       values: |
