@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kuberhealthy
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: 09999-garry-playground
+  destination:
+    server: 'https://87.233.137.168:6443'
+    namespace: kuberhealthy
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+  info:
+    - name: customer_id
+      value: "09999"
+  source:
+    repoURL: 'https://kuberhealthy.github.io/kuberhealthy/helm-repos'
+    targetRevision: 77
+    chart: kuberhealthy
+    helm:
+      values: |
+        deployment:
+          annotations:
+            ad.datadoghq.com/kuberhealthy.init_configs: '[{}]'
+            ad.datadoghq.com/kuberhealthy.check_names: '["openmetrics"]'
+            prometheus.io/port: "8080"
+            prometheus.io/scrape: "true"
+            ad.datadoghq.com/kuberhealthy.instances: '[{"prometheus_url": "http://%%host%%:8080/metrics","type_overrides":{"kuberhealthy_check": "gauge","kuberhealthy_check_duration_seconds": "gauge","kuberhealthy_cluster_state": "gauge","kuberhealthy_running": "gauge"},"namespace": "kube-system","metrics": ["kuberhealthy_*"],"leader_election": true,"bearer_token_auth": true,"bearer_token_path": "/var/run/secrets/kubernetes.io/serviceaccount/token","ssl_verify": false,"prometheus_timeout": 15}]'
+
+
