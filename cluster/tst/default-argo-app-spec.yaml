@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-webhook-03560-johan
+  namespace: argocd-03560
+spec:
+  project: true-managed
+  destination:
+    server: 'https://87.233.137.96:6443'
+    namespace: vault-webhook
+  syncPolicy:
+    automated:
+      prune: true
+  source:
+    repoURL: 'https://kubernetes-charts.banzaicloud.com'
+    chart: vault-secrets-webhook
+    targetRevision: 1.13.*
