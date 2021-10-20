@@ -1,0 +1,92 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dd-test
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: 09999-garry-playground
+  destination:
+    server: 'https://87.233.137.168:6443'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+  info:
+    - name: customer_id
+      value: "09999"
+  source:
+    repoURL: 'https://helm.datadoghq.com'
+    targetRevision: 2.19.*
+    chart: datadog
+    helm:
+      values: |
+        datadog:
+          site:  datadoghq.eu
+          apiKeyExistingSecret: datadog-secret
+          appKeyExistingSecret: datadog-auth-token
+          clusterChecks:
+            enabled: true
+          nodeLabelsAsTags:
+            kubernetes.io/hostname: k8s-09999-garry-playground
+            kubernetes.io/role: kube_role
+          podLabelsAsTags:
+            app: kube_app
+            release: helm_release
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          tags:
+            - "kubernetes_cluster:k8s-09999-garry-playground"
+            - "cluster_env:dev"
+          kubelet:
+            host:
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            tlsVerify:  false
+          collectEvents: true
+          logs:
+            enabled: true
+          apm:
+            enabled: true
+          env:
+            - name: DD_CLUSTER_CHECKS_ENABLED
+              value: "true"
+          confd:
+            docker.yaml: |-
+              init_config: null
+              instances:
+                - collect_container_size: true
+                  collect_images_stats: true
+                  collect_disk_stats: true
+                  collect_exit_codes: true
+          dogStatsDSocketPath: /var/run/datadog/dsd.socket
+          dockerSocketPath:  /var/run/docker.sock
+        clusterAgent:
+          enabled: true
+          rbac:
+            create: true
+          metricsProvider:
+            enabled: false
+          podAnnotations:
+            ad.datadoghq.com/datadog-cluster-agent.check_names: '["prometheus"]'
+            ad.datadoghq.com/datadog-cluster-agent.init_configs: '[{}]'
+            ad.datadoghq.com/datadog-cluster-agent.instances: '[{"prometheus_url": "http://%%host%%:5000/metrics","namespace": "datadog.cluster_agent","metrics": ["go_goroutines","go_memstats_*","process_*","api_requests","datadog_requests","external_metrics", "cluster_checks_*"]}]'
+        deployment:
+          enabled: true
+        daemonset:
+          useHostPort: true
+        kube-state-metrics:
+          rbac:
+            create: true
+        rbac:
+          create: true
+        service:
+          type: ClusterIP
