@@ -1,0 +1,8 @@
+project: 09999-garry-playground
+source:
+  repoURL: 'https://charts.bitnami.com/bitnami'
+  targetRevision: 7.0.5
+  chart: redis-cluster
+destination:
+  server: 'https://87.233.137.168:6443'
+syncPolicy: {}
